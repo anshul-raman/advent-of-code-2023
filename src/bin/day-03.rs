@@ -31,7 +31,7 @@ fn parse_numbers(line_idx: usize, input: &str) -> Vec<Number> {
             }
             _ => {
                 // append to nums if string is non empty;
-                if cur_num.len() > 0 {
+                if !cur_num.is_empty() {
                     nums.push(Number {
                         line_idx,
                         value: cur_num.parse().unwrap(),
@@ -56,9 +56,7 @@ mod part1 {
         input
             .split('\n')
             .enumerate()
-            .map(|(idx, inp)| parse_numbers(idx, inp))
-            .into_iter()
-            .flatten()
+            .flat_map(|(idx, inp)| parse_numbers(idx, inp))
             .filter(|n| {
                 let mut is_valid = false;
 
@@ -121,7 +119,7 @@ mod part2 {
             .split('\n')
             .map(parse_gears)
             .enumerate()
-            .map(|(line_idx, f)| {
+            .flat_map(|(line_idx, f)| {
                 f.into_iter()
                     .map(|g| {
                         // select only gears
@@ -169,8 +167,6 @@ mod part2 {
                     })
                     .collect::<Vec<u64>>()
             })
-            .into_iter()
-            .flatten()
             .sum::<u64>()
             .to_string()
     }
