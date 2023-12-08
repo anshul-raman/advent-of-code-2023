@@ -12,9 +12,9 @@ struct Game {
 }
 
 enum Cube {
-    RED(u64),
-    GREEN(u64),
-    BLUE(u64),
+    Red(u64),
+    Green(u64),
+    Blue(u64),
 }
 
 fn main() {
@@ -63,9 +63,9 @@ fn parse_game_play(input: &str) -> Bag {
         .map(parse_cube)
         .fold(Bag::default(), |mut acc, c| {
             match c {
-                Cube::RED(x) => acc.red = x,
-                Cube::GREEN(x) => acc.green = x,
-                Cube::BLUE(x) => acc.blue = x,
+                Cube::Red(x) => acc.red = x,
+                Cube::Green(x) => acc.green = x,
+                Cube::Blue(x) => acc.blue = x,
             };
             acc
         })
@@ -81,9 +81,9 @@ fn parse_cube(input: &str) -> Cube {
     let (num, ctype) = input.trim().split_once(' ').expect("should be present");
     let num = num.parse::<u64>().expect("should be a number");
     match ctype {
-        "blue" => Cube::BLUE(num),
-        "red" => Cube::RED(num),
-        "green" => Cube::GREEN(num),
+        "blue" => Cube::Blue(num),
+        "red" => Cube::Red(num),
+        "green" => Cube::Green(num),
         _ => panic!("Invlid input"),
     }
 }

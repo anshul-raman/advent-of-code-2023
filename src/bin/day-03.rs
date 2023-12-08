@@ -96,10 +96,7 @@ mod part1 {
         input
             .chars()
             .enumerate()
-            .filter(|(_, c)| match c {
-                '.' | '0'..='9' => false,
-                _ => true,
-            })
+            .filter(|(_, c)| !matches!(c, '.' | '0'..='9'))
             .map(|(idx, _)| idx)
             .collect()
     }
