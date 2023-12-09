@@ -81,58 +81,47 @@ mod part2 {
             l.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap())
         }
 
-        let mut memo: HashMap<(usize, i64), i64> = HashMap::new();
         for s_range in seeds.chunks_exact(2) {
             for s in s_range[0]..s_range[0] + s_range[1] {
                 let mut seed_loc = s;
                 // dbg!(seed_loc);
-                for (idx, l) in lookup.iter().enumerate() {
+                for  l in lookup.iter() {
                     // check memo
-                    if let Some(v) = memo.get(&(idx, seed_loc)) {
-                        seed_loc = *v;
-                        dbg!("used hashmap");
-                    } else {
-                        // compute if not found in memo
-                        let mut mapped_val = seed_loc;
-                        // dbg!("mapping from:", idx, &l);
+                    // compute if not found in memo
+                    let mut mapped_val = seed_loc;
+                    // dbg!("mapping from:", idx, &l);
 
-                        // for m in l {
-                        //     if m.1 <= seed_loc && seed_loc <= m.1 + m.2 {
-                        //         mapped_val = seed_loc - m.1 + m.0;
-                        //         break;
-                        //     }
-                        // }
-                        //
-                        //
+                    // for m in l {
+                    //     if m.1 <= seed_loc && seed_loc <= m.1 + m.2 {
+                    //         mapped_val = seed_loc - m.1 + m.0;
+                    //         break;
+                    //     }
+                    // }
+                    //
+                    //
 
-                        // using binary search simmilar to loop above
+                    // using binary search simmilar to loop above
 
-                        let mut found = false;
-                        let mut lo: i64 = 0;
-                        let mut hi: i64 = l.len() as i64 - 1;
-                        while lo <= hi {
-                            let mid = (lo + hi) / 2;
-                            let rng = l[mid as usize];
-                            // dbg!("checking at", mid, seed_loc, rng);
+                    let mut lo: i64 = 0;
+                    let mut hi: i64 = l.len() as i64 - 1;
+                    while lo <= hi {
+                        let mid = (lo + hi) / 2;
+                        let rng = l[mid as usize];
+                        // dbg!("checking at", mid, seed_loc, rng);
 
-                            if rng.1 <= seed_loc && seed_loc <= rng.1 + rng.2 - 1 {
-                                found = true;
-                                // dbg!("inside if", rng, mid, lo, hi);
-                                mapped_val = seed_loc - rng.1 + rng.0;
-                                break;
-                            }
+                        if rng.1 <= seed_loc && seed_loc <= rng.1 + rng.2 - 1 {
+                            mapped_val = seed_loc - rng.1 + rng.0;
+                            break;
+                        }
 
-                            if seed_loc < rng.1 {
-                                hi = mid - 1;
-                            } else {
-                                lo = mid + 1;
-                            }
+                        if seed_loc < rng.1 {
+                            hi = mid - 1;
+                        } else {
+                            lo = mid + 1;
                         }
                         // dbg!(found, mapped_val, seed_loc, idx);
-
-                        memo.insert((idx, seed_loc), mapped_val);
-                        seed_loc = mapped_val;
                     }
+                    seed_loc = mapped_val;
                 }
 
                 ans = ans.min(seed_loc);
