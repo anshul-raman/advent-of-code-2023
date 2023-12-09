@@ -55,7 +55,7 @@ mod part2 {
         let time = time
             .split_whitespace()
             .fold(String::new(), |mut acc, f| {
-                acc.extend(f.chars());
+                acc.push_str(f);
                 acc
             })
             .parse::<u64>()
@@ -64,7 +64,7 @@ mod part2 {
         let dist = dist
             .split_whitespace()
             .fold(String::new(), |mut acc, f| {
-                acc.extend(f.chars());
+                acc.push_str(f);
                 acc
             })
             .parse::<u64>()
