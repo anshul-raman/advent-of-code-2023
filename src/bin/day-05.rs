@@ -51,8 +51,95 @@ mod part1 {
 mod part2 {
     // use super::*;
 
-    pub fn process(_input: &str) -> String {
-        "todo".to_string()
+    use std::collections::HashMap;
+
+    pub fn process(input: &str) -> String {
+        let mut seeds: Vec<i64> = vec![];
+        let mut lookup: Vec<Vec<(i64, i64, i64)>> = vec![];
+        let mut ans = i64::MAX;
+        for s in input.split('\n') {
+            if s.starts_with("seeds") {
+                let (_, seeds_str) = s.split_once(':').unwrap();
+                seeds.extend(
+                    seeds_str
+                        .split_whitespace()
+                        .map(|f| f.parse::<i64>().unwrap()),
+                );
+            } else if s.ends_with("map:") {
+                lookup.push(Vec::new());
+            } else if !s.is_empty() {
+                let range_map: Vec<i64> = s
+                    .split_whitespace()
+                    .map(|f| f.parse::<i64>().unwrap())
+                    .collect();
+                let n = lookup.len() - 1;
+                lookup[n].push((range_map[0], range_map[1], range_map[2]));
+            }
+        }
+
+        for l in lookup.iter_mut() {
+            l.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap())
+        }
+
+        let mut memo: HashMap<(usize, i64), i64> = HashMap::new();
+        for s_range in seeds.chunks_exact(2) {
+            for s in s_range[0]..s_range[0] + s_range[1] {
+                let mut seed_loc = s;
+                // dbg!(seed_loc);
+                for (idx, l) in lookup.iter().enumerate() {
+                    // check memo
+                    if let Some(v) = memo.get(&(idx, seed_loc)) {
+                        seed_loc = *v;
+                        dbg!("used hashmap");
+                    } else {
+                        // compute if not found in memo
+                        let mut mapped_val = seed_loc;
+                        // dbg!("mapping from:", idx, &l);
+
+                        // for m in l {
+                        //     if m.1 <= seed_loc && seed_loc <= m.1 + m.2 {
+                        //         mapped_val = seed_loc - m.1 + m.0;
+                        //         break;
+                        //     }
+                        // }
+                        //
+                        //
+
+                        // using binary search simmilar to loop above
+
+                        let mut found = false;
+                        let mut lo: i64 = 0;
+                        let mut hi: i64 = l.len() as i64 - 1;
+                        while lo <= hi {
+                            let mid = (lo + hi) / 2;
+                            let rng = l[mid as usize];
+                            // dbg!("checking at", mid, seed_loc, rng);
+
+                            if rng.1 <= seed_loc && seed_loc <= rng.1 + rng.2 - 1 {
+                                found = true;
+                                // dbg!("inside if", rng, mid, lo, hi);
+                                mapped_val = seed_loc - rng.1 + rng.0;
+                                break;
+                            }
+
+                            if seed_loc < rng.1 {
+                                hi = mid - 1;
+                            } else {
+                                lo = mid + 1;
+                            }
+                        }
+                        // dbg!(found, mapped_val, seed_loc, idx);
+
+                        memo.insert((idx, seed_loc), mapped_val);
+                        seed_loc = mapped_val;
+                    }
+                }
+
+                ans = ans.min(seed_loc);
+            }
+        }
+
+        ans.to_string()
     }
 }
 
@@ -101,16 +188,42 @@ humidity-to-location map:
         assert_eq!(result, "35")
     }
 
-    //     #[test]
-    //     fn part2_test() {
-    //         let input = "Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
-    // Card 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19
-    // Card 3:  1 21 53 59 44 | 69 82 63 72 16 21 14  1
-    // Card 4: 41 92 73 84 69 | 59 84 76 51 58  5 54 83
-    // Card 5: 87 83 26 28 32 | 88 30 70 12 93 22 82 36
-    // Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11";
-    //
-    //         let result = part2::process(input);
-    //         assert_eq!(result, "30")
-    // }
+    #[test]
+    fn part2_test() {
+        let input = "seeds: 79 14 55 13
+
+seed-to-soil map:
+50 98 2
+52 50 48
+
+soil-to-fertilizer map:
+0 15 37
+37 52 2
+39 0 15
+
+fertilizer-to-water map:
+49 53 8
+0 11 42
+42 0 7
+57 7 4
+
+water-to-light map:
+88 18 7
+18 25 70
+
+light-to-temperature map:
+45 77 23
+81 45 19
+68 64 13
+
+temperature-to-humidity map:
+0 69 1
+1 0 69
+
+humidity-to-location map:
+60 56 37
+56 93 4";
+        let result = part2::process(input);
+        assert_eq!(result, "46")
+    }
 }
