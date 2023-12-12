@@ -63,14 +63,10 @@ mod part1 {
                 return Ordering::Less;
             }
 
-            let mx_len_a = mp_a
-                .iter()
-                .map(|(_, l)| l)
+            let mx_len_a = mp_a.values()
                 .reduce(|acc, l| acc.max(l))
                 .unwrap();
-            let mx_len_b = mp_b
-                .iter()
-                .map(|(_, l)| l)
+            let mx_len_b = mp_b.values()
                 .reduce(|acc, l| acc.max(l))
                 .unwrap();
 
@@ -189,14 +185,10 @@ mod part2 {
                 return Ordering::Less;
             }
 
-            let mx_len_a = mp_a
-                .iter()
-                .map(|(_, l)| l)
+            let mx_len_a = mp_a.values()
                 .reduce(|acc, l| acc.max(l))
                 .unwrap();
-            let mx_len_b = mp_b
-                .iter()
-                .map(|(_, l)| l)
+            let mx_len_b = mp_b.values()
                 .reduce(|acc, l| acc.max(l))
                 .unwrap();
 
