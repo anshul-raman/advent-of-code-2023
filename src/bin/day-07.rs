@@ -1,17 +1,18 @@
+use std::{cmp::Ordering, collections::HashMap};
+
+#[derive(Debug)]
+struct Hand {
+    cards: String,
+    bid: u64,
+}
 fn main() {
     let input = include_str!("../inputs/day7.txt");
     dbg!(part1::process(input));
-    // dbg!(part2::process(input));
+    dbg!(part2::process(input));
 }
 
 mod part1 {
-    use std::{cmp::Ordering, collections::HashMap};
-
-    #[derive(Debug)]
-    struct Hand {
-        cards: String,
-        bid: u64,
-    }
+    use super::*;
 
     pub fn process(input: &str) -> String {
         let card_map = HashMap::from([
@@ -30,7 +31,8 @@ mod part1 {
             ('A', 12),
         ]);
 
-        let mut input = input.trim()
+        let mut input = input
+            .trim()
             .split('\n')
             .map(|f| {
                 let (cards, bid) = f.split_once(' ').unwrap();
@@ -40,10 +42,8 @@ mod part1 {
             })
             .collect::<Vec<Hand>>();
 
-        // dbg!(&input);
 
         input.sort_by(|a, b| {
-            // dbg!(a, b);
             let mut mp_a = HashMap::new();
             a.cards.chars().for_each(|c| {
                 mp_a.entry(c).and_modify(|e| *e += 1).or_insert(1);
@@ -54,7 +54,6 @@ mod part1 {
                 mp_b.entry(c).and_modify(|e| *e += 1).or_insert(1);
             });
 
-            // dbg!(&mp_a, &mp_b);
 
             if mp_a.len() < mp_b.len() {
                 return Ordering::Greater;
@@ -84,7 +83,7 @@ mod part1 {
             }
 
             for (x, y) in a.cards.chars().zip(b.cards.chars()) {
-                dbg!(x,y);
+                dbg!(x, y);
                 let rank_a = card_map.get(&x).unwrap();
                 let rank_b = card_map.get(&y).unwrap();
 
@@ -100,7 +99,6 @@ mod part1 {
             Ordering::Less
         });
 
-        dbg!(&input);
         input
             .iter()
             .enumerate()
@@ -112,13 +110,132 @@ mod part1 {
 
 mod part2 {
 
-    // pub fn process(input: &str) -> String {
-    // }
+    use super::*;
+
+    pub fn process(input: &str) -> String {
+        let card_map = HashMap::from([
+            ('J', 0),
+            ('2', 1),
+            ('3', 2),
+            ('4', 3),
+            ('5', 4),
+            ('6', 5),
+            ('7', 6),
+            ('8', 7),
+            ('9', 8),
+            ('T', 9),
+            ('Q', 10),
+            ('K', 11),
+            ('A', 12),
+        ]);
+
+        let mut input = input
+            .trim()
+            .split('\n')
+            .map(|f| {
+                let (cards, bid) = f.split_once(' ').unwrap();
+                let bid = bid.parse::<u64>().unwrap();
+                let cards = cards.to_string();
+                Hand { cards, bid }
+            })
+            .collect::<Vec<Hand>>();
+
+
+        input.sort_by(|a, b| {
+            let mut mp_a = HashMap::new();
+            let mut j_count_a = 0;
+            a.cards.chars().for_each(|c| {
+                if c == 'J' {
+                    j_count_a += 1;
+                } else {
+                    mp_a.entry(c).and_modify(|e| *e += 1).or_insert(1);
+                }
+            });
+            if j_count_a == 5 {
+                mp_a.insert('A', 5);
+            } else {
+                let mut mp_a_arr = mp_a.clone().into_iter().collect::<Vec<(char, i32)>>();
+                mp_a_arr.sort_by(|a, b| a.1.cmp(&b.1).reverse());
+                let (c, _) = mp_a_arr[0];
+                mp_a.entry(c).and_modify(|e| *e += j_count_a);
+            }
+
+
+
+            let mut mp_b = HashMap::new();
+            let mut j_count_b = 0;
+            b.cards.chars().for_each(|c| {
+                if c == 'J' {
+                    j_count_b += 1;
+                } else {
+                    mp_b.entry(c).and_modify(|e| *e += 1).or_insert(1);
+                }
+            });
+            if j_count_b == 5 {
+                mp_b.insert('A', 5); 
+            }else {
+                let mut mp_b_arr = mp_b.clone().into_iter().collect::<Vec<(char, i32)>>();
+                mp_b_arr.sort_by(|a,b| a.1.cmp(&b.1).reverse()); 
+                let (c, _) = mp_b_arr[0]; 
+                mp_b.entry(c).and_modify(|e| *e += j_count_b);
+            }
+
+
+
+            if mp_a.len() < mp_b.len() {
+                return Ordering::Greater;
+            }
+
+            if mp_a.len() > mp_b.len() {
+                return Ordering::Less;
+            }
+
+            let mx_len_a = mp_a
+                .iter()
+                .map(|(_, l)| l)
+                .reduce(|acc, l| acc.max(l))
+                .unwrap();
+            let mx_len_b = mp_b
+                .iter()
+                .map(|(_, l)| l)
+                .reduce(|acc, l| acc.max(l))
+                .unwrap();
+
+            if mx_len_a < mx_len_b {
+                return Ordering::Less;
+            }
+
+            if mx_len_a > mx_len_b {
+                return Ordering::Greater;
+            }
+
+            for (x, y) in a.cards.chars().zip(b.cards.chars()) {
+                let rank_a = card_map.get(&x).unwrap();
+                let rank_b = card_map.get(&y).unwrap();
+
+                if rank_a < rank_b {
+                    return Ordering::Less;
+                }
+                if rank_a > rank_b {
+                    return Ordering::Greater;
+                }
+            }
+            unreachable!();
+
+            Ordering::Less
+        });
+
+        input
+            .iter()
+            .enumerate()
+            .map(|(idx, h)| (idx + 1) * h.bid as usize)
+            .sum::<usize>()
+            .to_string()
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::part1::process;
 
     use super::*;
 
@@ -132,7 +249,6 @@ QQQJA 483";
 
         let result = part1::process(input);
         assert_eq!(result, "6440");
-
 
         let input = "
 2345A 1
@@ -155,14 +271,12 @@ AAAAA 61
 2JJJJ 53
 JJJJ2 41";
 
-        assert_eq!(part1::process(input), "6592" );
-
+        assert_eq!(part1::process(input), "6592");
 
         let input = "627Q8 1
 A26Q7 1
 2K637 1";
         assert_eq!(part1::process(input), "6");
-
 
         let input = "AAAAA 2
 22222 3
@@ -177,9 +291,8 @@ AAKKQ 23
 AAKQJ 31
 22345 37
 AKQJT 41
-23456 43"; 
+23456 43";
         assert_eq!(part1::process(input), "1343");
-
 
         let input = "23456 22
 56789 19
@@ -207,13 +320,10 @@ J5432 8
 JJJJJ 1";
         assert_eq!(part1::process(input), "2237");
 
-
         let input = "23456 1
 AAAKK 3
 AAAAA 1";
         assert_eq!(part1::process(input), "10");
-
-
 
         let input = "KJ3A2 17
 JQ472 72
@@ -222,12 +332,15 @@ QT3J2 19
         assert_eq!(part1::process(input), "292");
     }
 
-    //     #[test]
-    //     fn part2_test() {
-    //         let input = "Time:      7  15   30
-    // Distance:  9  40  200";
-    //
-    //         let result = part2::process(input);
-    //         assert_eq!(result, "71503")
-    //     }
+    #[test]
+    fn part2_test() {
+        let input = "32T3K 765
+T55J5 684
+KK677 28
+KTJJT 220
+QQQJA 483";
+
+        let result = part2::process(input);
+        assert_eq!(result, "5905")
+    }
 }
