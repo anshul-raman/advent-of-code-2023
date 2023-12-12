@@ -96,7 +96,6 @@ mod part1 {
             }
             unreachable!();
 
-            Ordering::Less
         });
 
         input
@@ -222,7 +221,6 @@ mod part2 {
             }
             unreachable!();
 
-            Ordering::Less
         });
 
         input
