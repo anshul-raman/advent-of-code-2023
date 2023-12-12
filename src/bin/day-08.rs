@@ -73,15 +73,11 @@ mod part2 {
             );
         });
 
-        let starting_locs: Vec<&String> = graph.keys().filter(|k| k.ends_with('A')).collect();
-        let steps_req: Vec<u64> = starting_locs
-            .iter()
-            .map(|s| solve(&s, &steps, &graph))
-            .collect();
-
-        steps_req
-            .iter()
-            .fold(1u64, |acc, &f| (acc * f) / gcd(acc, f))
+        graph
+            .keys()
+            .filter(|k| k.ends_with('A'))
+            .map(|s| solve(s, &steps, &graph))
+            .fold(1u64, |acc, f| (acc * f) / gcd(acc, f))
             .to_string()
     }
 
@@ -89,7 +85,7 @@ mod part2 {
         if a == 0 {
             return b;
         }
-        return gcd(b % a, a);
+        gcd(b % a, a)
     }
 
     fn solve(start: &str, steps: &Vec<char>, graph: &HashMap<String, (String, String)>) -> u64 {
