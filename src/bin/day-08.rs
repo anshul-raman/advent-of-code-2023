@@ -14,7 +14,7 @@ mod part1 {
 
         let mut graph = HashMap::<String, (String, String)>::new();
 
-        graph_str.split('\n').into_iter().for_each(|f| {
+        graph_str.split('\n').for_each(|f| {
             let (node, edges) = f.split_once('=').unwrap();
             let (a, b) = edges
                 .trim()
@@ -49,7 +49,7 @@ mod part1 {
 }
 
 mod part2 {
-    use super::*;
+    
 
     // pub fn process(input: &str) -> String {
     // }
